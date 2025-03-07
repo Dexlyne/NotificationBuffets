@@ -6,11 +6,34 @@ const pax = 4;
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
-const API_URL = "https://api-public.lesgrandsbuffets.com/v1/context/availabilities";
+const API_URL_DISPO = "https://api-public.lesgrandsbuffets.com/v1/context/availabilities";
+const API_URL_DATE = "https://api-public.lesgrandsbuffets.com/v1/context/check-first-intention?date="+date+"&moment="+moment+"&pax="+pax;
+
+async function checkDate() {
+    try {
+        const response = await fetch(API_URL_DATE);
+        if (!response.ok) {
+            throw new Error(`Erreur HTTP: ${response.status}`);
+        }
+
+        const disponibilites = await response.json();
+        console.log("📅 Disponibilités récupérées :", disponibilites);
+
+        // Vérifie si la date existe dans les données de l'API
+        if (disponibilites.isAvailable) {
+            const message = `🎉 **Bonne nouvelle !**\n📅 *${date}* | 👥 ${pax} personnes | ⏰ ${moment}\nUne table est disponible aux *Grands Buffets* !`;
+            await sendTelegramMessage(message);
+        } else {
+            console.log("❌ Aucune disponibilité trouvée pour cette date/moment/pax.");
+        }
+    } catch (error) {
+        console.error("Erreur lors de la récupération des disponibilités :", error);
+    }
+}
 
 async function checkDisponibilites() {
     try {
-        const response = await fetch(API_URL);
+        const response = await fetch(API_URL_DISPO);
         if (!response.ok) {
             throw new Error(`Erreur HTTP: ${response.status}`);
         }
@@ -57,4 +80,5 @@ async function sendTelegramMessage(text) {
 }
 
 // Exécuter le script
-checkDisponibilites();
+// checkDisponibilites();
+checkDate();
