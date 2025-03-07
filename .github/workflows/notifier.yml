@@ -1,14 +1,14 @@
 name: Notification Buffets
 
 on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
+  schedule:
+    - cron: '0 */6 * * *'  # Exécute toutes les 6 heures
+  workflow_dispatch:  # Permet de lancer manuellement l’action
 
 jobs:
-  run-script:
+  check-availability:
     runs-on: ubuntu-latest
+
     steps:
       - name: Cloner le repo
         uses: actions/checkout@v4
@@ -21,3 +21,13 @@ jobs:
 
       - name: Exécuter le script
         run: node notifier.js
+
+      - name: Envoi de la notification Telegram
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          MESSAGE="📢 Disponibilité trouvée aux Grands Buffets !"
+          curl -s -X POST "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage" \
+          -d chat_id="$TELEGRAM_CHAT_ID" \
+          -d text="$MESSAGE"
