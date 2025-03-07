@@ -3,7 +3,7 @@ name: Notification Buffets
 on:
   schedule:
     - cron: '0 */6 * * *'  # Exécute toutes les 6 heures
-  workflow_dispatch:  # Permet de lancer manuellement l’action
+  workflow_dispatch:
 
 jobs:
   check-availability:
@@ -12,15 +12,17 @@ jobs:
     steps:
       - name: Cloner le repo
         uses: actions/checkout@v4
+        with:
+          path: NotificationBuffets  # On force le bon dossier
 
       - name: Vérifier la structure des fichiers
         run: ls -R
 
-      - name: Installer les dépendances
-        run: npm install
+      - name: Se placer dans le bon répertoire
+        run: cd NotificationBuffets && npm install
 
       - name: Exécuter le script
-        run: node notifier.js
+        run: cd NotificationBuffets && node notifier.js
 
       - name: Envoi de la notification Telegram
         env:
