@@ -6,9 +6,9 @@ dotenv.config(); // Charge les variables d'environnement depuis un fichier .env
 const prompt = promptSync();
 
 // ⚙️ Demande des informations à l'utilisateur
-const date = prompt("📅 Entrez la date (YYYY-MM-DD) : ");
-const moment = prompt("🌞 midi (noon) ou soir (evening) ? : ");
-const pax = prompt("👥 Nombre de personnes : ");
+const date = "2024-03-10";
+const moment = "noon"
+const pax = 4;
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
