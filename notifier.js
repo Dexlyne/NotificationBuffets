@@ -6,12 +6,20 @@ const pax = 4;
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+const API_AUTH_TOKEN = process.env.API_AUTH_TOKEN; // Assure-toi que cette variable est bien définie
 const API_URL_DISPO = "https://api-public.lesgrandsbuffets.com/v1/context/availabilities";
-const API_URL_DATE = "https://api-public.lesgrandsbuffets.com/v1/context/check-first-intention?date="+date+"&moment="+moment+"&pax="+pax;
+const API_URL_DATE = `https://api-public.lesgrandsbuffets.com/v1/context/check-first-intention?date=${date}&moment=${moment}&pax=${pax}`;
 
 async function checkDate() {
     try {
-        const response = await fetch(API_URL_DATE);
+        const response = await fetch(API_URL_DATE, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "x-auth-token": API_AUTH_TOKEN
+            }
+        });
+
         if (!response.ok) {
             throw new Error(`Erreur HTTP: ${response.status}`);
         }
@@ -19,7 +27,6 @@ async function checkDate() {
         const disponibilites = await response.json();
         console.log("📅 Disponibilités récupérées :", disponibilites);
 
-        // Vérifie si la date existe dans les données de l'API
         if (disponibilites.isAvailable) {
             const message = `🎉 **Bonne nouvelle !**\n📅 *${date}* | 👥 ${pax} personnes | ⏰ ${moment}\nUne table est disponible aux *Grands Buffets* !`;
             await sendTelegramMessage(message);
@@ -33,7 +40,14 @@ async function checkDate() {
 
 async function checkDisponibilites() {
     try {
-        const response = await fetch(API_URL_DISPO);
+        const response = await fetch(API_URL_DISPO, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "x-auth-token": API_AUTH_TOKEN
+            }
+        });
+
         if (!response.ok) {
             throw new Error(`Erreur HTTP: ${response.status}`);
         }
@@ -41,7 +55,6 @@ async function checkDisponibilites() {
         const disponibilites = await response.json();
         console.log("📅 Disponibilités récupérées :", disponibilites);
 
-        // Vérifie si la date existe dans les données de l'API
         if (disponibilites[date] && disponibilites[date][pax] && disponibilites[date][pax][moment]) {
             const message = `🎉 **Bonne nouvelle !**\n📅 *${date}* | 👥 ${pax} personnes | ⏰ ${moment}\nUne table est disponible aux *Grands Buffets* !`;
             await sendTelegramMessage(message);
@@ -80,5 +93,4 @@ async function sendTelegramMessage(text) {
 }
 
 // Exécuter le script
-// checkDisponibilites();
 checkDate();
