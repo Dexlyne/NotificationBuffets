@@ -1,13 +1,8 @@
 {
-    "name": "notification-buffets",
-    "version": "1.0.0",
-    "description": "Script pour surveiller les disponibilités des Grands Buffets et envoyer une notification Telegram.",
-    "main": "notifier.js",
-    "scripts": {
-      "start": "node notifier.js"
-    },
-    "dependencies": {
-      "node-fetch": "^3.3.2"
-    },
-    "type": "module"
-  }  
+  "name": "notificationbuffets",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "node-fetch": "^2.6.1"
+  }
+}
