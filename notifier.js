@@ -1,53 +1,72 @@
 import fetch from "node-fetch";
+import dotenv from "dotenv";
+import promptSync from "prompt-sync";
+
+dotenv.config(); // Charge les variables d'environnement depuis un fichier .env
+const prompt = promptSync();
+
+// ⚙️ Demande des informations à l'utilisateur
+const date = prompt("📅 Entrez la date (YYYY-MM-DD) : ");
+const moment = prompt("🌞 midi (noon) ou soir (evening) ? : ");
+const pax = prompt("👥 Nombre de personnes : ");
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
-const API_URL = "https://api-public.lesgrandsbuffets.com/v1/context/availabilities";
 
-async function checkDisponibilites() {
+if (!date || !moment || !pax || !TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
+    console.error("❌ ERREUR : Toutes les informations sont requises.");
+    process.exit(1);
+}
+
+const url = `https://api-public.lesgrandsbuffets.com/v1/context/availabilities?date=${date}&moment=${moment}&pax=${pax}`;
+
+console.log(`🔍 Vérification des disponibilités pour ${pax} personnes le ${date} (${moment})...`);
+
+// 🔔 Fonction d'envoi de notification Telegram
+async function sendTelegramMessage(message) {
+    const telegramUrl = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+
     try {
-        const response = await fetch(API_URL);
-        const disponibilites = await response.json();
-        
-        let message = "🚨 Disponibilités trouvées ! 🚨\n";
-        let found = false;
+        const response = await fetch(telegramUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                chat_id: TELEGRAM_CHAT_ID,
+                text: message,
+                parse_mode: "Markdown",
+            }),
+        });
 
-        for (const date in disponibilites) {
-            for (const pax in disponibilites[date]) {
-                for (const moment in disponibilites[date][pax]) {
-                    if (disponibilites[date][pax][moment]) {
-                        found = true;
-                        message += `📅 ${date} | 👥 ${pax} pers. | ⏰ ${moment}\n`;
-                    }
-                }
-            }
+        if (!response.ok) {
+            throw new Error(`Erreur Telegram: ${response.statusText}`);
+        }
+        console.log("📩 Notification envoyée sur Telegram !");
+    } catch (error) {
+        console.error("❌ Erreur lors de l'envoi du message Telegram :", error.message);
+    }
+}
+
+// 🔥 Vérification des disponibilités
+async function checkAvailability() {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Erreur HTTP: ${response.status}`);
         }
 
-        if (found) {
-            sendTelegramMessage(message);
+        const data = await response.json();
+        console.log("📅 Disponibilités reçues :", data);
+
+        if (data[date] && data[date][pax] && data[date][pax][moment]) {
+            console.log("✅ Une disponibilité a été trouvée !");
+            await sendTelegramMessage(`🎉 **Bonne nouvelle !** Une table pour ${pax} personnes est disponible le ${date} (${moment}) aux *Grands Buffets* !`);
         } else {
             console.log("❌ Aucune disponibilité trouvée.");
         }
     } catch (error) {
-        console.error("Erreur lors de la récupération des disponibilités :", error);
+        console.error("❗ Erreur lors de la récupération des disponibilités :", error.message);
     }
 }
 
-async function sendTelegramMessage(text) {
-    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-    const params = { chat_id: TELEGRAM_CHAT_ID, text };
-
-    try {
-        await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(params)
-        });
-        console.log("✅ Message envoyé sur Telegram !");
-    } catch (error) {
-        console.error("Erreur lors de l'envoi du message Telegram :", error);
-    }
-}
-
-// Exécuter le script
-checkDisponibilites();
+// 🚀 Exécuter la vérification
+checkAvailability();
