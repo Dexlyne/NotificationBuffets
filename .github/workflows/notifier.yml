@@ -18,6 +18,9 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Vérifier la structure des fichiers
+        run: ls -R
+
       - name: Installer les dépendances
         run: npm install
 
