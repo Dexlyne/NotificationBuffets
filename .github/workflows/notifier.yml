@@ -19,9 +19,6 @@ jobs:
       - name: Installer les dépendances
         run: npm install
 
-      - name: Exécuter le script
-        run: node notifier.js
-
       - name: Exécuter le script de notification
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
