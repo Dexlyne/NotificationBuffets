@@ -35,7 +35,9 @@ async function checkDate() {
             console.log("❌ Aucune disponibilité trouvée pour cette date/moment/pax.");
         }
     } catch (error) {
-        console.error("Erreur lors de la récupération des disponibilités :", error);
+        const message =("Erreur lors de la récupération des disponibilités :", error);
+        console.error(message);
+        await sendTelegramMessage(message);
     }
 }
 
