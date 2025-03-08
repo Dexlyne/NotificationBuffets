@@ -22,12 +22,9 @@ jobs:
       - name: Exécuter le script
         run: node notifier.js
 
-      - name: Envoi de la notification Telegram
+      - name: Exécuter le script de notification
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: |
-          MESSAGE="📢 Disponibilité trouvée aux Grands Buffets !"
-          curl -s -X POST "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage" \
-          -d chat_id="$TELEGRAM_CHAT_ID" \
-          -d text="$MESSAGE"
+          API_AUTH_TOKEN: ${{ secrets.API_AUTH_TOKEN }}
+        run: node notifier.js
