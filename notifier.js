@@ -1,5 +1,5 @@
 import fetch from "node-fetch";
-import "dotenv/config";
+// import "dotenv/config";
 
 const date = "2025-05-16";
 const moment = "noon"; // 'noon' pour midi, 'evening' pour le soir
