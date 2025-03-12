@@ -2,7 +2,7 @@ name: Notification Buffets
 
 on:
   schedule:
-    - cron: '0 */6 * * *'  # Exécute toutes les 6 heures
+    - cron: '0 */3 * * *'  # Exécute toutes les 6 heures
   workflow_dispatch:
 
 jobs:
